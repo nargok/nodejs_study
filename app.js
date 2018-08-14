@@ -39,21 +39,35 @@ function getFromClient(req, res) {
   }
 }
 
-var data = {
-  'Taro': '09-999-999',
-  'Hanako': '080-888-888',
-  'Sachiko': '070-777-777',
-  'Ichiro': '060-666-666',
-}
+var data = {msg: 'no message...'}
 
 function responst_index(req, res) {
-  var msg = 'これはIndexページです'
+
+  if (req.method == 'POST') {
+    var body = '';
+
+    // データ受信のイベント処理
+    req.on('data', (data) => {
+      body += data;
+    });
+
+    // データ受信終了のイベント処理
+    req.on('end', () => {
+      data = qs.parse(body);
+      write_index(req, res);
+    })
+  } else {
+    write_index(req, res);
+  }
+}
+
+function write_index(req, res) {
+  var msg = '※伝言を表示します'
   var content = ejs.render(index_page, {
     title: 'Index',
     content: msg,
     data: data,
-    filename: 'data_item'
-  })
+  });
   res.writeHead(200, { 'Content-Type': 'text/html' });
   res.write(content);
   res.end();
