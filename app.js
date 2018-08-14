@@ -6,6 +6,7 @@ const url = require('url')
 // サーバ起動時にtemplate fileを読み込んでしまう
 // サーバ起動中は、読み込んだ変数を使う
 const index_page = fs.readFileSync('./index.ejs', 'utf8');
+const other_page = fs.readFileSync('./other.ejs', 'utf8');
 const style_css = fs.readFileSync('./style.css');
 
 var server = http.createServer(getFromClient);
@@ -27,6 +28,16 @@ function getFromClient(req, res) {
       res.end();
       break;
   
+    case '/other':
+      var content = ejs.render(other_page, {
+        title: 'Otherページ',
+        content: 'これは新しく用意したページです',
+      });
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.write(content);
+      res.end();
+      break;
+      
     case '/style.css':
       res.writeHead(200, { 'Content-Type': 'text/css' });
       res.write(style_css);
