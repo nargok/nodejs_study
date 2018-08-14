@@ -54,6 +54,7 @@ function responst_index(req, res) {
     // データ受信終了のイベント処理
     req.on('end', () => {
       data = qs.parse(body);
+      setCookie('msg', data.msg, res);
       write_index(req, res);
     })
   } else {
@@ -63,14 +64,36 @@ function responst_index(req, res) {
 
 function write_index(req, res) {
   var msg = '※伝言を表示します'
+  var cookie_data = getCookie('msg', req);
   var content = ejs.render(index_page, {
     title: 'Index',
     content: msg,
     data: data,
+    cookie_data: cookie_data,
   });
   res.writeHead(200, { 'Content-Type': 'text/html' });
   res.write(content);
   res.end();
+}
+
+// クッキーの値を設定
+function setCookie(key, value, res) {
+  var cookie = escape(value);
+  res.setHeader('Set-Cookie', [key + '=' + cookie]);
+}
+
+// クッキーの値を取得
+function getCookie(key, req) {
+  var cookie_data = req.headers.cookie != undefined ?
+    req.headers.cookie : '';
+  var data = cookie_data.split(';') // keyと値がセットになった配列ができる
+  for (var i in data) {
+    if (data[i].trim().startsWith(key + '=')){
+      var result = data[i].trim().substring(key.length + 1);
+      return unescape(result);
+    }
+  }
+  return '';
 }
 
 function response_other(req, res) {
